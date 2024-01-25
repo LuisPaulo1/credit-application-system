@@ -29,5 +29,6 @@ data class Credit (
   val status: Status = Status.IN_PROGRESS,
 
   @ManyToOne
+  @JoinColumn(name = "customer_id", nullable = false)
   var customer: Customer? = null
 )
