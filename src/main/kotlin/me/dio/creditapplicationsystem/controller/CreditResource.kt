@@ -5,6 +5,8 @@ import me.dio.creditapplicationsystem.dto.CreditView
 import me.dio.creditapplicationsystem.dto.CreditViewList
 import me.dio.creditapplicationsystem.entity.Credit
 import me.dio.creditapplicationsystem.service.impl.CreditService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -19,22 +21,24 @@ import java.util.UUID
 class CreditResource(private val creditService: CreditService) {
 
   @PostMapping
-  fun saveCredit(@RequestBody creditDto: CreditDto): String {
-    val credit: Credit = creditService.save(creditDto.toEntity())
-    return "Credit ${credit.creditCode} - Customer ${credit.customer?.firstName} saved!"
+  fun saveCredit(@RequestBody creditDto: CreditDto): ResponseEntity<String> {
+    val credit: Credit = this.creditService.save(creditDto.toEntity())
+    return ResponseEntity.status(HttpStatus.CREATED)
+      .body("Credit ${credit.creditCode} - Customer ${credit.customer?.email} saved!")
   }
 
   @GetMapping
-  fun findAllByCustomerId(@RequestParam(value = "customerId") customerId: Long): List<CreditViewList> {
-    val credits: List<Credit> = creditService.findAllByCustomer(customerId)
-    return credits.map { CreditViewList(it) }
+  fun findAllByCustomerId(@RequestParam(value = "customerId") customerId: Long): ResponseEntity<List<CreditViewList>> {
+    val creditViewList: List<CreditViewList> = creditService.findAllByCustomer(customerId).map { CreditViewList(it) }
+    return ResponseEntity.ok(creditViewList)
   }
 
   @GetMapping("/creditCode")
   fun findByCreditCode(
     @RequestParam(value = "customerId") customerId: Long,
-    @PathVariable creditCode: UUID): CreditView {
-    val credit: Credit = creditService.findByCreditCode(customerId, creditCode)
-    return CreditView(credit)
+    @PathVariable creditCode: UUID
+  ): ResponseEntity<CreditView> {
+    val credit: Credit = this.creditService.findByCreditCode(customerId, creditCode)
+    return ResponseEntity.status(HttpStatus.OK).body(CreditView(credit))
   }
 }
