@@ -1,15 +1,18 @@
 package me.dio.creditapplicationsystem.controller
 
 import me.dio.creditapplicationsystem.dto.CreditDto
+import me.dio.creditapplicationsystem.dto.CreditView
 import me.dio.creditapplicationsystem.dto.CreditViewList
 import me.dio.creditapplicationsystem.entity.Credit
 import me.dio.creditapplicationsystem.service.impl.CreditService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import java.util.UUID
 
 @Controller
 @RequestMapping("/api/credits")
@@ -25,5 +28,13 @@ class CreditResource(private val creditService: CreditService) {
   fun findAllByCustomerId(@RequestParam(value = "customerId") customerId: Long): List<CreditViewList> {
     val credits: List<Credit> = creditService.findAllByCustomer(customerId)
     return credits.map { CreditViewList(it) }
+  }
+
+  @GetMapping("/creditCode")
+  fun findByCreditCode(
+    @RequestParam(value = "customerId") customerId: Long,
+    @PathVariable creditCode: UUID): CreditView {
+    val credit: Credit = creditService.findByCreditCode(customerId, creditCode)
+    return CreditView(credit)
   }
 }
