@@ -6,7 +6,7 @@ import me.dio.creditapplicationsystem.service.ICustomerService
 import org.springframework.stereotype.Service
 
 @Service
-class CustomerService(private val customerRepository: CustomerRepository ) : ICustomerService {
+class CustomerService(private val customerRepository: CustomerRepository) : ICustomerService {
   override fun save(customer: Customer): Customer = customerRepository.save(customer)
   override fun findById(id: Long): Customer {
     return customerRepository.findById(id).orElseThrow {
