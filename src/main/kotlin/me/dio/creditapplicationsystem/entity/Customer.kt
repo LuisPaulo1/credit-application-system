@@ -1,6 +1,7 @@
 package me.dio.creditapplicationsystem.entity
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 
 @Entity
 data class Customer(
@@ -10,16 +11,19 @@ data class Customer(
   val id: Long? = null,
 
   @Column(nullable = false)
-  var firstname: String = "",
+  var firstName: String = "",
 
   @Column(nullable = false)
-  var lastname: String = "",
+  var lastName: String = "",
 
   @Column(nullable = false, unique = true)
   val cpf: String,
 
   @Column(nullable = false, unique = true)
   var email: String = "",
+
+  @Column(nullable = false)
+  var income: BigDecimal = BigDecimal.ZERO,
 
   @Column(nullable = false)
   var password: String = "",
