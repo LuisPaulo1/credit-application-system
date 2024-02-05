@@ -127,6 +127,23 @@ class CreditServiceTest {
     verify(exactly = 1) { creditRepository.findByCreditCode(invalidCreditCode) }
   }
 
+  @Test
+  fun `should throw IllegalArgumentException for different customer ID`() {
+    //given
+    val customerId: Long = 1L
+    val creditCode: UUID = UUID.randomUUID()
+    val credit: Credit = buildCredit(customer = Customer(id = 2L))
+
+    every { creditRepository.findByCreditCode(creditCode) } returns credit
+    //when
+    //then
+    Assertions.assertThatThrownBy { creditService.findByCreditCode(customerId, creditCode) }
+      .isInstanceOf(IllegalArgumentException::class.java)
+      .hasMessage("Contact admin")
+
+    verify { creditRepository.findByCreditCode(creditCode) }
+  }
+
   companion object {
     private fun buildCredit(
       creditValue: BigDecimal = BigDecimal.valueOf(100.0),
