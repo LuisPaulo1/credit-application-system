@@ -111,6 +111,22 @@ class CreditServiceTest {
     verify(exactly = 1) { creditRepository.findByCreditCode(creditCode) }
   }
 
+  @Test
+  fun `should throw BusinessException for invalid credit code`() {
+    //given
+    val customerId: Long = 1L
+    val invalidCreditCode: UUID = UUID.randomUUID()
+
+    every { creditRepository.findByCreditCode(invalidCreditCode) } returns null
+    //when
+    //then
+    Assertions.assertThatThrownBy { creditService.findByCreditCode(customerId, invalidCreditCode) }
+      .isInstanceOf(BusinessException::class.java)
+      .hasMessage("Creditcode $invalidCreditCode not found")
+    //then
+    verify(exactly = 1) { creditRepository.findByCreditCode(invalidCreditCode) }
+  }
+
   companion object {
     private fun buildCredit(
       creditValue: BigDecimal = BigDecimal.valueOf(100.0),
