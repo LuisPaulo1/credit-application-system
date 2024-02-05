@@ -9,6 +9,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import me.dio.creditapplicationsystem.entity.Credit
 import me.dio.creditapplicationsystem.entity.Customer
+import me.dio.creditapplicationsystem.exception.BusinessException
 import me.dio.creditapplicationsystem.repository.CreditRepository
 import me.dio.creditapplicationsystem.service.impl.CreditService
 import me.dio.creditapplicationsystem.service.impl.CustomerService
@@ -58,6 +59,21 @@ class CreditServiceTest {
 
     Assertions.assertThat(actual).isNotNull
     Assertions.assertThat(actual).isSameAs(credit)
+  }
+
+  @Test
+  fun `should not create credit when invalid day first installment`() {
+    //given
+    val invalidDayFirstInstallment: LocalDate = LocalDate.now().plusMonths(5)
+    val credit: Credit = buildCredit(dayFirstInstallment = invalidDayFirstInstallment)
+
+    every { creditRepository.save(credit) } answers { credit }
+    //when
+    Assertions.assertThatThrownBy { creditService.save(credit) }
+      .isInstanceOf(BusinessException::class.java)
+      .hasMessage("Invalid Date")
+    //then
+    verify(exactly = 0) { creditRepository.save(any()) }
   }
 
   companion object {
