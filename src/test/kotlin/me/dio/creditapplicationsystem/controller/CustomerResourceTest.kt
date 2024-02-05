@@ -2,6 +2,7 @@ package me.dio.creditapplicationsystem.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.dio.creditapplicationsystem.dto.CustomerDto
+import me.dio.creditapplicationsystem.dto.CustomerUpdateDto
 import me.dio.creditapplicationsystem.entity.Customer
 import me.dio.creditapplicationsystem.repository.CustomerRepository
 import org.junit.jupiter.api.AfterEach
@@ -197,6 +198,31 @@ class CustomerResourceTest {
       .andDo(MockMvcResultHandlers.print())
   }
 
+  @Test
+  fun `should update a customer and return 200 status`() {
+    //given
+    val customer: Customer = customerRepository.save(builderCustomerDto().toEntity())
+    val customerUpdateDto: CustomerUpdateDto = builderCustomerUpdateDto()
+    val valueAsString: String = objectMapper.writeValueAsString(customerUpdateDto)
+    //when
+    //then
+    mockMvc.perform(
+      MockMvcRequestBuilders.patch("$URL?customerId=${customer.id}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(valueAsString)
+    )
+      .andExpect(MockMvcResultMatchers.status().isOk)
+      .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("CamiUpdate"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("CavalcanteUpdate"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.cpf").value("28475934625"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("camila@email.com"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.income").value("5000.0"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.zipCode").value("45656"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.street").value("Rua Updated"))
+      //.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+      .andDo(MockMvcResultHandlers.print())
+  }
+
   private fun builderCustomerDto(
     firstName: String = "Cami",
     lastName: String = "Cavalcante",
@@ -213,6 +239,20 @@ class CustomerResourceTest {
     email = email,
     income = income,
     password = password,
+    zipCode = zipCode,
+    street = street
+  )
+
+  private fun builderCustomerUpdateDto(
+    firstName: String = "CamiUpdate",
+    lastName: String = "CavalcanteUpdate",
+    income: BigDecimal = BigDecimal.valueOf(5000.0),
+    zipCode: String = "45656",
+    street: String = "Rua Updated"
+  ): CustomerUpdateDto = CustomerUpdateDto(
+    firstName = firstName,
+    lastName = lastName,
+    income = income,
     zipCode = zipCode,
     street = street
   )
