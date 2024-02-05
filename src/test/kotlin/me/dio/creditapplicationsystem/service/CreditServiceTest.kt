@@ -76,6 +76,23 @@ class CreditServiceTest {
     verify(exactly = 0) { creditRepository.save(any()) }
   }
 
+  @Test
+  fun `should return list of credits for a customer`() {
+    //given
+    val customerId: Long = 1L
+    val expectedCredits: List<Credit> = listOf(buildCredit(), buildCredit(), buildCredit())
+
+    every { creditRepository.findAllByCustomerId(customerId) } returns expectedCredits
+    //when
+    val actual: List<Credit> = creditService.findAllByCustomer(customerId)
+    //then
+    Assertions.assertThat(actual).isNotNull
+    Assertions.assertThat(actual).isNotEmpty
+    Assertions.assertThat(actual).isSameAs(expectedCredits)
+
+    verify(exactly = 1) { creditRepository.findAllByCustomerId(customerId) }
+  }
+
   companion object {
     private fun buildCredit(
       creditValue: BigDecimal = BigDecimal.valueOf(100.0),
