@@ -4,9 +4,12 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.runs
 import io.mockk.verify
 import me.dio.creditapplicationsystem.entity.Address
 import me.dio.creditapplicationsystem.entity.Customer
+import me.dio.creditapplicationsystem.exception.BusinessException
 import me.dio.creditapplicationsystem.repository.CustomerRepository
 import me.dio.creditapplicationsystem.service.impl.CustomerService
 import org.assertj.core.api.Assertions
@@ -27,7 +30,7 @@ class CustomerServiceTest {
   lateinit var customerService: CustomerService
 
   @Test
-  fun `should create customer`(){
+  fun `should create customer`() {
     //given
     val fakeCustomer: Customer = buildCustomer()
     every { customerRepository.save(any()) } returns fakeCustomer
@@ -52,6 +55,33 @@ class CustomerServiceTest {
     Assertions.assertThat(actual).isExactlyInstanceOf(Customer::class.java)
     Assertions.assertThat(actual).isSameAs(fakeCustomer)
     verify(exactly = 1) { customerRepository.findById(fakeId) }
+  }
+
+  @Test
+  fun `should not find customer by invalid id and throw BusinessException`() {
+    //given
+    val fakeId: Long = Random().nextLong()
+    every { customerRepository.findById(fakeId) } returns Optional.empty()
+    //when
+    //then
+    Assertions.assertThatExceptionOfType(BusinessException::class.java)
+      .isThrownBy { customerService.findById(fakeId) }
+      .withMessage("Id $fakeId not found")
+    verify(exactly = 1) { customerRepository.findById(fakeId) }
+  }
+
+  @Test
+  fun `should delete customer by id`() {
+    //given
+    val fakeId: Long = Random().nextLong()
+    val fakeCustomer: Customer = buildCustomer(id = fakeId)
+    every { customerRepository.findById(fakeId) } returns Optional.of(fakeCustomer)
+    every { customerRepository.delete(fakeCustomer) } just runs
+    //when
+    customerService.delete(fakeId)
+    //then
+    verify(exactly = 1) { customerRepository.findById(fakeId) }
+    verify(exactly = 1) { customerRepository.delete(fakeCustomer) }
   }
 
   companion object {
